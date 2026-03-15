@@ -7,7 +7,7 @@ app.use(express.json())
 /* CONFIGURACION */
 
 const EVOLUTION_API = "http://localhost:49959"
-const INSTANCE = "Bot1"
+const INSTANCE = "bot1"
 const API_KEY = "bK7XzpXeq3VxxeWqYhdbsTE2eG2RwG3Z"
 
 const OLLAMA_URL = "http://localhost:11434/api/generate"
@@ -34,83 +34,81 @@ Respuestas cortas y profesionales.
 
 /* CONSULTAR IA */
 
-async function preguntarIA(texto){
+async function preguntarIA(texto) {
+  try {
+    const response = await axios.post(OLLAMA_URL, {
+      model: "qwen2:1.5b",
+      prompt: SYSTEM_PROMPT + "\nCliente: " + texto,
+      stream: false
+    })
 
-const response = await axios.post(OLLAMA_URL,{
-model:"qwen2:1.5b",
-prompt: SYSTEM_PROMPT + "\nCliente: " + texto,
-stream:false
-})
-
-return response.data.response
-
+    return response.data.response || "Hola, ¿en qué puedo ayudarte?"
+  } catch (err) {
+    console.log("Error IA:", err.response?.data || err.message)
+    return "Disculpa, estoy teniendo un problema técnico en este momento."
+  }
 }
 
 /* WEBHOOK WHATSAPP */
 
-app.post("/webhook", async (req,res)=>{
+app.post("/webhook", async (req, res) => {
+  try {
+    const mensaje = req.body?.data?.message?.conversation
+    const jid = req.body?.data?.key?.remoteJid
 
-try{
+    if (!mensaje || !jid) {
+      return res.sendStatus(200)
+    }
 
-const mensaje = req.body.data.message?.conversation
+    const numero = jid.replace("@s.whatsapp.net", "")
 
-if(!mensaje){
-return res.sendStatus(200)
-}
+    console.log("Mensaje recibido:", mensaje)
 
-const numero = req.body.data.key.remoteJid
+    /* GUARDAR MENSAJE CLIENTE */
+    await axios.post(DASHBOARD_API, {
+      numero: numero,
+      mensaje: mensaje,
+      tipo: "cliente"
+    }).catch(() => {})
 
-console.log("Mensaje:",mensaje)
+    /* PREGUNTAR A IA */
+    const respuesta = await preguntarIA(mensaje)
 
-/* GUARDAR MENSAJE CLIENTE */
+    console.log("Respuesta IA:", respuesta)
 
-await axios.post(DASHBOARD_API,{
-numero:numero,
-mensaje:mensaje,
-tipo:"cliente"
-})
+    /* GUARDAR RESPUESTA BOT */
+    await axios.post(DASHBOARD_API, {
+      numero: numero,
+      mensaje: respuesta,
+      tipo: "bot"
+    }).catch(() => {})
 
-/* PREGUNTAR A IA */
+    /* ENVIAR RESPUESTA WHATSAPP */
+    const envio = await axios.post(
+      `${EVOLUTION_API}/message/sendText/${INSTANCE}`,
+      {
+        number: numero,
+        text: respuesta
+      },
+      {
+        headers: {
+          apikey: API_KEY,
+          "Content-Type": "application/json"
+        }
+      }
+    )
 
-const respuesta = await preguntarIA(mensaje)
+    console.log("Mensaje enviado a WhatsApp:", envio.data)
 
-/* GUARDAR RESPUESTA BOT */
-
-await axios.post(DASHBOARD_API,{
-numero:numero,
-mensaje:respuesta,
-tipo:"bot"
-})
-
-/* ENVIAR RESPUESTA WHATSAPP */
-
-await axios.post(
-`${EVOLUTION_API}/message/sendText/${INSTANCE}`,
-{
-number:numero,
-text:respuesta
-},
-{
-headers:{
-apikey:API_KEY
-}
-})
-
-res.sendStatus(200)
-
-}catch(err){
-
-console.log(err)
-res.sendStatus(500)
-
-}
-
+    res.sendStatus(200)
+  } catch (err) {
+    console.log("Error general:", err.response?.data || err.message)
+    res.sendStatus(500)
+  }
 })
 
 /* SERVIDOR */
 
-app.listen(3000,()=>{
-
-console.log("BOT SOLUTECNO ACTIVO PUERTO 3000")
-
+app.listen(3000, () => {
+  console.log("BOT SOLUTECNO ACTIVO PUERTO 3000")
 })
