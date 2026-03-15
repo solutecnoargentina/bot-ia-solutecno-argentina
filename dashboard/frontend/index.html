@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Solutecno Dashboard</title>
+<style>
+body{
+font-family:Arial;
+background:#f4f4f4;
+padding:40px
+}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1)
+}
+
+button{
+padding:10px;
+background:#2c7be5;
+color:white;
+border:none;
+border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Dashboard Solutecno</h1>
+
+<div class="card">
+<h2>Agentes IA</h2>
+<div id="agentes"></div>
+</div>
+
+<div class="card">
+<h2>Crear agente</h2>
+<input id="nombre" placeholder="Nombre agente">
+<input id="prompt" placeholder="Prompt IA">
+<button onclick="crear()">Crear</button>
+</div>
+
+<script>
+
+async function cargar(){
+
+let r = await fetch("http://72.60.12.34:4000/api/agentes")
+let data = await r.json()
+
+let html=""
+
+data.forEach(a=>{
+html += "<p>"+a.nombre+"</p>"
+})
+
+document.getElementById("agentes").innerHTML = html
+
+}
+
+async function crear(){
+
+let nombre=document.getElementById("nombre").value
+let prompt=document.getElementById("prompt").value
+
+await fetch("http://72.60.12.34:4000/api/agentes",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({nombre,prompt})
+})
+
+cargar()
+
+}
+
+cargar()
+
+</script>
+
+</body>
+</html>
