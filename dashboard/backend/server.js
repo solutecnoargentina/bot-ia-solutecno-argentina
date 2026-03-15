@@ -1,7 +1,10 @@
 const express = require("express")
 const app = express()
-app.use(express.static("../frontend"))
+
 app.use(express.json())
+app.use(express.static("../frontend"))
+
+/* AGENTES IA */
 
 let agentes = [
 {
@@ -18,6 +21,21 @@ app.post("/api/agentes",(req,res)=>{
 agentes.push(req.body)
 res.json({status:"ok"})
 })
+
+/* CONVERSACIONES */
+
+let conversaciones = []
+
+app.get("/api/conversaciones",(req,res)=>{
+res.json(conversaciones)
+})
+
+app.post("/api/conversaciones",(req,res)=>{
+conversaciones.push(req.body)
+res.json({status:"ok"})
+})
+
+/* SERVIDOR */
 
 app.listen(4000,()=>{
 console.log("Dashboard backend activo puerto 4000")
