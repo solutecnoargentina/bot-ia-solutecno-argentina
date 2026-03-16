@@ -9,19 +9,65 @@
 
 body{
 font-family:Arial;
-background:#f4f6fb;
 margin:0;
+background:#f4f6fb;
+display:flex;
+height:100vh;
 }
 
 header{
 background:#0f172a;
 color:white;
-padding:20px;
-font-size:22px;
+padding:15px;
+font-size:20px;
+position:fixed;
+top:0;
+width:100%;
 }
 
-.container{
-padding:30px;
+.main{
+display:flex;
+width:100%;
+margin-top:60px;
+}
+
+/* panel clientes */
+
+.clients{
+width:25%;
+background:white;
+border-right:1px solid #ddd;
+overflow:auto;
+}
+
+.client{
+padding:15px;
+border-bottom:1px solid #eee;
+cursor:pointer;
+}
+
+.client:hover{
+background:#f5f5f5;
+}
+
+/* chat */
+
+.chat{
+flex:1;
+padding:20px;
+overflow:auto;
+}
+
+.message{
+margin-bottom:10px;
+}
+
+.bot{
+color:green;
+}
+
+.top{
+padding:20px;
 }
 
 .card{
@@ -30,11 +76,6 @@ padding:20px;
 margin-bottom:20px;
 border-radius:10px;
 box-shadow:0 4px 20px rgba(0,0,0,0.05);
-}
-
-.status{
-margin-bottom:10px;
-font-size:16px;
 }
 
 input,textarea{
@@ -59,16 +100,6 @@ button:hover{
 background:#1e4ed8;
 }
 
-.agent{
-padding:10px;
-border-bottom:1px solid #eee;
-}
-
-.conversation{
-padding:10px;
-border-bottom:1px solid #eee;
-}
-
 </style>
 
 </head>
@@ -81,26 +112,33 @@ Solutecno AI Platform
 
 </header>
 
-<div class="container">
+
+<div class="main">
+
+<div class="clients">
+
+<div class="top">
+
+<h3>Clientes</h3>
+
+<div id="clientsList"></div>
+
+</div>
+
+</div>
+
+
+<div class="chat">
 
 <div class="card">
 
 <h2>Estado del sistema</h2>
 
-<div class="status">
-Bot IA: <span id="bot">verificando...</span>
-</div>
-
-<div class="status">
-Ollama IA: <span id="ollama">verificando...</span>
-</div>
-
-<div class="status">
-Evolution API: <span id="evolution">verificando...</span>
-</div>
+Bot IA: <span id="bot"></span><br>
+Ollama: <span id="ollama"></span><br>
+Evolution: <span id="evolution"></span>
 
 </div>
-
 
 <div class="card">
 
@@ -109,7 +147,6 @@ Evolution API: <span id="evolution">verificando...</span>
 <div id="agents"></div>
 
 </div>
-
 
 <div class="card">
 
@@ -123,64 +160,48 @@ Evolution API: <span id="evolution">verificando...</span>
 
 </div>
 
-
-<!-- NUEVO BLOQUE: CONVERSACIONES -->
-
 <div class="card">
 
-<h2>Conversaciones</h2>
+<h2>Chat</h2>
 
-<div id="conversations">Cargando conversaciones...</div>
-
-</div>
-
+<div id="chatMessages"></div>
 
 </div>
 
+</div>
+
+</div>
 
 <script>
 
+let conversations=[]
+let currentClient=null
+
 async function status(){
 
-try{
-
-const res = await fetch("/status")
-const data = await res.json()
+const res=await fetch("/status")
+const data=await res.json()
 
 document.getElementById("bot").innerText=data.bot
 document.getElementById("ollama").innerText=data.ollama
 document.getElementById("evolution").innerText=data.evolution
 
-}catch(e){
-
-console.log(e)
-
-}
-
 }
 
 async function cargarAgentes(){
 
-try{
-
-const res = await fetch("/agents")
-const data = await res.json()
+const res=await fetch("/agents")
+const data=await res.json()
 
 let html=""
 
 data.forEach(a=>{
 
-html += `<div class="agent"><b>${a.name}</b><br>${a.prompt}</div>`
+html+=`<div><b>${a.name}</b><br>${a.prompt}</div><hr>`
 
 })
 
 document.getElementById("agents").innerHTML=html
-
-}catch(e){
-
-console.log(e)
-
-}
 
 }
 
@@ -189,23 +210,10 @@ async function crearAgente(){
 const name=document.getElementById("name").value
 const prompt=document.getElementById("prompt").value
 
-if(!name || !prompt){
-
-alert("Completa todos los campos")
-return
-
-}
-
 await fetch("/agents",{
-
 method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({name:name,prompt:prompt})
-
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({name,prompt})
 })
 
 document.getElementById("name").value=""
@@ -215,48 +223,68 @@ cargarAgentes()
 
 }
 
+async function loadConversations(){
 
-// NUEVA FUNCION PARA CONVERSACIONES
+const res=await fetch("/conversations")
 
-async function cargarConversaciones(){
+conversations=await res.json()
 
-try{
+const clients={}
 
-const res = await fetch("/conversations")
-const data = await res.json()
+conversations.forEach(c=>{
+clients[c.cliente]=true
+})
 
-let html=""
+const list=document.getElementById("clientsList")
 
-data.slice().reverse().forEach(c=>{
+list.innerHTML=""
 
-html += `
-<div class="conversation">
-<b>${c.cliente}</b><br>
-Cliente: ${c.mensaje}<br>
-Bot: ${c.respuesta}
+Object.keys(clients).forEach(c=>{
+
+list.innerHTML+=`
+<div class="client" onclick="openChat('${c}')">
+${c}
 </div>
 `
 
 })
 
-document.getElementById("conversations").innerHTML=html
-
-}catch(e){
-
-console.log(e)
-
 }
 
-}
+function openChat(cliente){
 
+currentClient=cliente
+
+const chat=document.getElementById("chatMessages")
+
+chat.innerHTML=""
+
+conversations
+.filter(c=>c.cliente===cliente)
+.forEach(c=>{
+
+chat.innerHTML+=`
+
+<div class="message">
+<b>Cliente:</b> ${c.mensaje}
+</div>
+
+<div class="message bot">
+<b>Bot:</b> ${c.respuesta}
+</div>
+
+`
+
+})
+
+}
 
 setInterval(status,3000)
+setInterval(loadConversations,3000)
 
 status()
 cargarAgentes()
-cargarConversaciones()
-
-setInterval(cargarConversaciones,3000)
+loadConversations()
 
 </script>
 

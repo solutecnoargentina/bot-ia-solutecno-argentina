@@ -10,10 +10,24 @@ app.use(express.json())
 app.use(express.static(path.join(__dirname,"../frontend")))
 
 const AGENTS_FILE = path.join(__dirname,"agents.json")
+const conversationsFile = path.join(__dirname,"conversations.json")
+
+// ======================
+// CREAR ARCHIVOS SI NO EXISTEN
+// ======================
 
 if(!fs.existsSync(AGENTS_FILE)){
 fs.writeFileSync(AGENTS_FILE,"[]")
 }
+
+if(!fs.existsSync(conversationsFile)){
+fs.writeFileSync(conversationsFile,"[]")
+}
+
+
+// ======================
+// AGENTES IA
+// ======================
 
 app.get("/agents",(req,res)=>{
 
@@ -40,21 +54,44 @@ res.json({status:"guardado"})
 
 })
 
+
+// ======================
+// ESTADO SISTEMA
+// ======================
+
 app.get("/status", async (req,res)=>{
 
 let bot="online"
 let ollama="offline"
 let evolution="offline"
 
-try{
-await axios.get("http://localhost:11434")
-ollama="online"
-}catch{}
+// verificar ollama
 
 try{
-await axios.get("http://localhost:8080")
+
+await axios.get("http://localhost:11434")
+
+ollama="online"
+
+}catch(e){
+console.log("Ollama no responde")
+}
+
+// verificar evolution
+
+try{
+
+await axios.get("http://localhost:49959/instance/fetchInstances",{
+headers:{
+apikey:"A18324CBD9B9-4246-8C80-1BC0909067E2"
+}
+})
+
 evolution="online"
-}catch{}
+
+}catch(e){
+console.log("Evolution no responde")
+}
 
 res.json({
 bot,
@@ -63,7 +100,11 @@ evolution
 })
 
 })
-const conversationsFile=path.join(__dirname,"conversations.json")
+
+
+// ======================
+// HISTORIAL CONVERSACIONES
+// ======================
 
 app.get("/conversations",(req,res)=>{
 
@@ -74,6 +115,12 @@ return res.json([])
 res.json(JSON.parse(fs.readFileSync(conversationsFile)))
 
 })
+
+
+// ======================
+// INICIAR SERVIDOR
+// ======================
+
 app.listen(4000,"0.0.0.0",()=>{
 
 console.log("Dashboard backend activo puerto 4000")
