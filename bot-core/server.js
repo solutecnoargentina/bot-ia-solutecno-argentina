@@ -1,16 +1,28 @@
 const express = require("express")
 const axios = require("axios")
 const fs = require("fs")
-const path = require("path")
 
+// =============================
 // ARCHIVOS
+// =============================
+
 const conversationsFile="/opt/bot-ia-solutecno-argentina/dashboard/backend/conversations.json"
 const agentsFile="/opt/bot-ia-solutecno-argentina/dashboard/backend/agents.json"
 
-// CONFIG
+// =============================
+// CONFIG BOT
+// =============================
+
 const PORT = 3000
+
+// OLLAMA
 const OLLAMA_URL = "http://localhost:11434/api/generate"
 const MODEL = "qwen2:1.5b"
+
+// EVOLUTION API
+const EVOLUTION_API = "http://localhost:49959"
+const INSTANCE = "bot1"
+const API_KEY = "A18324CBD9B9-4246-8C80-1BC0909067E2"
 
 const app = express()
 app.use(express.json())
@@ -113,6 +125,34 @@ return "Lo siento, hubo un problema al generar la respuesta."
 }
 
 // =============================
+// ENVIAR MENSAJE WHATSAPP
+// =============================
+
+async function enviarWhatsapp(numero,texto){
+
+try{
+
+await axios.post(
+`${EVOLUTION_API}/message/sendText/${INSTANCE}`,
+{
+number:numero,
+text:texto
+},
+{
+headers:{
+apikey:API_KEY
+}
+})
+
+}catch(err){
+
+console.log("Error enviando mensaje:",err.message)
+
+}
+
+}
+
+// =============================
 // WEBHOOK WHATSAPP
 // =============================
 
@@ -120,27 +160,35 @@ app.post("/webhook",async(req,res)=>{
 
 try{
 
-const message=req.body.data?.message?.conversation
+// detectar mensaje correctamente
+const message =
+req.body.data?.message?.conversation ||
+req.body.data?.message?.extendedTextMessage?.text ||
+null
 
-const sender=req.body.data?.key?.remoteJid || "cliente"
+const sender=req.body.data?.key?.remoteJid || null
 
-if(!message){
+if(!message || !sender){
 return res.sendStatus(200)
 }
 
-console.log("Cliente:",sender)
+const numero=sender.split("@")[0]
+
+console.log("Cliente:",numero)
 console.log("Mensaje:",message)
 
+// IA
 const respuesta=await preguntarIA(message)
 
 console.log("Respuesta IA:",respuesta)
 
 // guardar conversación
-saveConversation(sender,message,respuesta)
+saveConversation(numero,message,respuesta)
 
-res.json({
-reply:respuesta
-})
+// enviar respuesta a whatsapp
+await enviarWhatsapp(numero,respuesta)
+
+res.sendStatus(200)
 
 }catch(err){
 
