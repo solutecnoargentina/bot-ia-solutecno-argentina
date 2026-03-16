@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>Solutecno AI Platform</title>
@@ -8,8 +9,8 @@
 
 body{
 font-family:Arial;
-margin:0;
 background:#f4f6fb;
+margin:0;
 }
 
 header{
@@ -28,7 +29,7 @@ background:white;
 padding:20px;
 margin-bottom:20px;
 border-radius:10px;
-box-shadow:0 4px 15px rgba(0,0,0,0.05);
+box-shadow:0 4px 20px rgba(0,0,0,0.05);
 }
 
 .status{
@@ -113,11 +114,12 @@ Evolution API: <span id="evolution">verificando...</span>
 
 <textarea id="prompt" placeholder="Prompt IA"></textarea>
 
-<button onclick="crearAgente()">Crear agente</button>
+<button onclick="crearAgente()">Guardar agente</button>
 
 </div>
 
 </div>
+
 
 <script>
 
@@ -151,7 +153,7 @@ let html=""
 
 data.forEach(a=>{
 
-html += `<div class="agent">${a.name}</div>`
+html += `<div class="agent"><b>${a.name}</b><br>${a.prompt}</div>`
 
 })
 
@@ -170,6 +172,13 @@ async function crearAgente(){
 const name=document.getElementById("name").value
 const prompt=document.getElementById("prompt").value
 
+if(!name || !prompt){
+
+alert("Completa todos los campos")
+return
+
+}
+
 await fetch("/agents",{
 
 method:"POST",
@@ -178,9 +187,12 @@ headers:{
 "Content-Type":"application/json"
 },
 
-body:JSON.stringify({name,prompt})
+body:JSON.stringify({name:name,prompt:prompt})
 
 })
+
+document.getElementById("name").value=""
+document.getElementById("prompt").value=""
 
 cargarAgentes()
 
