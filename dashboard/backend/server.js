@@ -63,7 +63,17 @@ evolution
 })
 
 })
+const conversationsFile=path.join(__dirname,"conversations.json")
 
+app.get("/conversations",(req,res)=>{
+
+if(!fs.existsSync(conversationsFile)){
+return res.json([])
+}
+
+res.json(JSON.parse(fs.readFileSync(conversationsFile)))
+
+})
 app.listen(4000,"0.0.0.0",()=>{
 
 console.log("Dashboard backend activo puerto 4000")

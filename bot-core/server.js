@@ -1,114 +1,119 @@
 const express = require("express")
 const axios = require("axios")
+const fs = require("fs")
+const conversationsFile="/opt/bot-ia-solutecno-argentina/dashboard/backend/conversations.json"
+function saveConversation(cliente,mensaje,respuesta){
+
+let data=[]
+
+if(fs.existsSync(conversationsFile)){
+data=JSON.parse(fs.readFileSync(conversationsFile))
+}
+
+data.push({
+cliente:cliente,
+mensaje:mensaje,
+respuesta:respuesta,
+fecha:new Date()
+})
+
+fs.writeFileSync(conversationsFile,JSON.stringify(data,null,2))
+
+}
+const path = require("path")
 
 const app = express()
 app.use(express.json())
 
-/* CONFIGURACION */
-
-const EVOLUTION_API = "http://localhost:49959"
-const INSTANCE = "bot1"
-const API_KEY = "bK7XzpXeq3VxxeWqYhdbsTE2eG2RwG3Z"
-
+// CONFIG
+const PORT = 3000
 const OLLAMA_URL = "http://localhost:11434/api/generate"
+const MODEL = "qwen2:1.5b"
 
-/* API DASHBOARD */
+// archivo agentes
+const agentsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/agents.json"
 
-const DASHBOARD_API = "http://72.60.12.34:4000/api/conversaciones"
-
-/* PROMPT IA */
-
-const SYSTEM_PROMPT = `
-Eres asesor comercial de Solutecno Argentina.
-
-Servicios:
-- Desarrollo web
-- Bots de WhatsApp
-- Automatizaciones
-- Marketing digital
-- Hosting
-
-Responde siempre en español.
-Respuestas cortas y profesionales.
-`
-
-/* CONSULTAR IA */
-
-async function preguntarIA(texto) {
-  try {
-    const response = await axios.post(OLLAMA_URL, {
-      model: "qwen2:1.5b",
-      prompt: SYSTEM_PROMPT + "\nCliente: " + texto,
-      stream: false
-    })
-
-    return response.data.response || "Hola, ¿en qué puedo ayudarte?"
-  } catch (err) {
-    console.log("Error IA:", err.response?.data || err.message)
-    return "Disculpa, estoy teniendo un problema técnico en este momento."
-  }
+// leer agentes
+function getAgents(){
+if(!fs.existsSync(agentsFile)){
+return []
+}
+return JSON.parse(fs.readFileSync(agentsFile))
 }
 
-/* WEBHOOK WHATSAPP */
+// obtener agente principal
+function getAgent(){
 
-app.post("/webhook", async (req, res) => {
-  try {
-    const mensaje = req.body?.data?.message?.conversation
-    const jid = req.body?.data?.key?.remoteJid
+const agents = getAgents()
 
-    if (!mensaje || !jid) {
-      return res.sendStatus(200)
-    }
+if(agents.length === 0){
+return {
+name:"default",
+personality:"Eres un asistente útil.",
+knowledge:""
+}
+}
 
-    const numero = jid.replace("@s.whatsapp.net", "")
+return agents[0]
 
-    console.log("Mensaje recibido:", mensaje)
+}
 
-    /* GUARDAR MENSAJE CLIENTE */
-    await axios.post(DASHBOARD_API, {
-      numero: numero,
-      mensaje: mensaje,
-      tipo: "cliente"
-    }).catch(() => {})
+// preguntar a la IA
+async function preguntarIA(texto){
 
-    /* PREGUNTAR A IA */
-    const respuesta = await preguntarIA(mensaje)
+const agent = getAgent()
 
-    console.log("Respuesta IA:", respuesta)
+const prompt = `
+PERSONALIDAD:
+${agent.personality}
 
-    /* GUARDAR RESPUESTA BOT */
-    await axios.post(DASHBOARD_API, {
-      numero: numero,
-      mensaje: respuesta,
-      tipo: "bot"
-    }).catch(() => {})
+CONOCIMIENTO:
+${agent.knowledge}
 
-    /* ENVIAR RESPUESTA WHATSAPP */
-    const envio = await axios.post(
-      `${EVOLUTION_API}/message/sendText/${INSTANCE}`,
-      {
-        number: numero,
-        text: respuesta
-      },
-      {
-        headers: {
-          apikey: API_KEY,
-          "Content-Type": "application/json"
-        }
-      }
-    )
+CLIENTE:
+${texto}
+`
 
-    console.log("Mensaje enviado a WhatsApp:", envio.data)
-
-    res.sendStatus(200)
-  } catch (err) {
-    console.log("Error general:", err.response?.data || err.message)
-    res.sendStatus(500)
-  }
+const response = await axios.post(OLLAMA_URL,{
+model:MODEL,
+prompt:prompt,
+stream:false
 })
 
-/* SERVIDOR */
+return response.data.response
 
-app.listen(3000, () => {
-  console.log("BOT SOLUTECNO ACTIVO PUERTO 3000")
+}
+
+// webhook evolution
+app.post("/webhook",async(req,res)=>{
+
+try{
+
+const message = req.body.data?.message?.conversation
+
+if(!message){
+return res.sendStatus(200)
+}
+
+console.log("Mensaje cliente:",message)
+
+const respuesta = await preguntarIA(message)
+
+console.log("Respuesta IA:",respuesta)
+saveConversation("cliente",message,respuesta)
+res.json({
+reply:respuesta
+})
+
+}catch(err){
+
+console.log("ERROR:",err.message)
+res.sendStatus(500)
+
+}
+
+})
+
+app.listen(PORT,()=>{
+console.log("BOT SOLUTECNO ACTIVO PUERTO",PORT)
 })
