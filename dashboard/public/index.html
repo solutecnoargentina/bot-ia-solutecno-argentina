@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Solutecno AI Platform</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f5f7fb;
+margin:0;
+}
+
+header{
+background:#0f172a;
+color:white;
+padding:20px;
+font-size:20px;
+}
+
+.container{
+padding:40px;
+}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.05);
+}
+
+.status{
+font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+Solutecno AI Platform Dashboard
+
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>Estado del sistema</h2>
+
+<div class="status">
+Bot IA: <span id="bot">verificando...</span>
+</div>
+
+<div class="status">
+Ollama IA: <span id="ollama">verificando...</span>
+</div>
+
+<div class="status">
+Evolution API: <span id="evolution">verificando...</span>
+</div>
+
+</div>
+
+<div class="card">
+<h2>Información</h2>
+
+<p>Plataforma de bots IA para WhatsApp desarrollada por Solutecno Argentina.</p>
+
+</div>
+
+</div>
+
+<script>
+
+async function check(){
+
+try{
+
+const bot = await fetch("/status")
+
+const data = await bot.json()
+
+document.getElementById("bot").innerText=data.bot
+document.getElementById("ollama").innerText=data.ollama
+document.getElementById("evolution").innerText=data.evolution
+
+}catch(e){
+
+console.log(e)
+
+}
+
+}
+
+setInterval(check,2000)
+
+check()
+
+</script>
+
+</body>
+</html>
+

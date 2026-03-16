@@ -1,12 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Solutecno Dashboard</title>
+
+<title>Solutecno AI Platform</title>
+
 <style>
+
 body{
 font-family:Arial;
-background:#f4f4f4;
-padding:40px
+margin:0;
+background:#f4f6fb;
+}
+
+header{
+background:#0f172a;
+color:white;
+padding:20px;
+font-size:22px;
+}
+
+.container{
+padding:30px;
 }
 
 .card{
@@ -14,68 +28,168 @@ background:white;
 padding:20px;
 margin-bottom:20px;
 border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1)
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+
+.status{
+margin-bottom:10px;
+font-size:16px;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin-top:10px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:5px;
 }
 
 button{
-padding:10px;
-background:#2c7be5;
+background:#2563eb;
 color:white;
+padding:10px 15px;
 border:none;
 border-radius:5px;
+cursor:pointer;
 }
+
+button:hover{
+background:#1e4ed8;
+}
+
+.agent{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h1>Dashboard Solutecno</h1>
+<header>
+
+Solutecno AI Platform
+
+</header>
+
+<div class="container">
 
 <div class="card">
-<h2>Agentes IA</h2>
-<div id="agentes"></div>
+
+<h2>Estado del sistema</h2>
+
+<div class="status">
+Bot IA: <span id="bot">verificando...</span>
 </div>
 
+<div class="status">
+Ollama IA: <span id="ollama">verificando...</span>
+</div>
+
+<div class="status">
+Evolution API: <span id="evolution">verificando...</span>
+</div>
+
+</div>
+
+
 <div class="card">
+
+<h2>Agentes IA</h2>
+
+<div id="agents"></div>
+
+</div>
+
+
+<div class="card">
+
 <h2>Crear agente</h2>
-<input id="nombre" placeholder="Nombre agente">
-<input id="prompt" placeholder="Prompt IA">
-<button onclick="crear()">Crear</button>
+
+<input id="name" placeholder="Nombre agente">
+
+<textarea id="prompt" placeholder="Prompt IA"></textarea>
+
+<button onclick="crearAgente()">Crear agente</button>
+
+</div>
+
 </div>
 
 <script>
 
-async function cargar(){
+async function status(){
 
-let r = await fetch("http://72.60.12.34:4000/api/agentes")
-let data = await r.json()
+try{
+
+const res = await fetch("/status")
+const data = await res.json()
+
+document.getElementById("bot").innerText=data.bot
+document.getElementById("ollama").innerText=data.ollama
+document.getElementById("evolution").innerText=data.evolution
+
+}catch(e){
+
+console.log(e)
+
+}
+
+}
+
+async function cargarAgentes(){
+
+try{
+
+const res = await fetch("/agents")
+const data = await res.json()
 
 let html=""
 
 data.forEach(a=>{
-html += "<p>"+a.nombre+"</p>"
+
+html += `<div class="agent">${a.name}</div>`
+
 })
 
-document.getElementById("agentes").innerHTML = html
+document.getElementById("agents").innerHTML=html
+
+}catch(e){
+
+console.log(e)
 
 }
 
-async function crear(){
+}
 
-let nombre=document.getElementById("nombre").value
-let prompt=document.getElementById("prompt").value
+async function crearAgente(){
 
-await fetch("http://72.60.12.34:4000/api/agentes",{
+const name=document.getElementById("name").value
+const prompt=document.getElementById("prompt").value
+
+await fetch("/agents",{
+
 method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({nombre,prompt})
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({name,prompt})
+
 })
 
-cargar()
+cargarAgentes()
 
 }
 
-cargar()
+setInterval(status,3000)
+
+status()
+cargarAgentes()
 
 </script>
 
