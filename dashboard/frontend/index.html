@@ -64,6 +64,11 @@ padding:10px;
 border-bottom:1px solid #eee;
 }
 
+.conversation{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
 </style>
 
 </head>
@@ -117,6 +122,18 @@ Evolution API: <span id="evolution">verificando...</span>
 <button onclick="crearAgente()">Guardar agente</button>
 
 </div>
+
+
+<!-- NUEVO BLOQUE: CONVERSACIONES -->
+
+<div class="card">
+
+<h2>Conversaciones</h2>
+
+<div id="conversations">Cargando conversaciones...</div>
+
+</div>
+
 
 </div>
 
@@ -198,10 +215,48 @@ cargarAgentes()
 
 }
 
+
+// NUEVA FUNCION PARA CONVERSACIONES
+
+async function cargarConversaciones(){
+
+try{
+
+const res = await fetch("/conversations")
+const data = await res.json()
+
+let html=""
+
+data.slice().reverse().forEach(c=>{
+
+html += `
+<div class="conversation">
+<b>${c.cliente}</b><br>
+Cliente: ${c.mensaje}<br>
+Bot: ${c.respuesta}
+</div>
+`
+
+})
+
+document.getElementById("conversations").innerHTML=html
+
+}catch(e){
+
+console.log(e)
+
+}
+
+}
+
+
 setInterval(status,3000)
 
 status()
 cargarAgentes()
+cargarConversaciones()
+
+setInterval(cargarConversaciones,3000)
 
 </script>
 
