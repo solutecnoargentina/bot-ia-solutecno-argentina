@@ -34,6 +34,24 @@ const conversationsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/con
 const processedMessages = new Set()
 
 // =============================
+// LIMPIAR RESPUESTA IA
+// =============================
+
+function limpiarRespuesta(texto){
+
+if(!texto) return ""
+
+let limpio = texto
+.replace(/\n/g," ")
+.replace(/\s+/g," ")
+.replace(/[^\wáéíóúñÁÉÍÓÚ¿?¡!., ]/g,"")
+.trim()
+
+return limpio
+
+}
+
+// =============================
 // GUARDAR CONVERSACIONES
 // =============================
 
@@ -210,13 +228,38 @@ setTimeout(()=>{
 processedMessages.delete(messageId)
 },300000)
 
+// =============================
+// FILTRO PARA EVITAR
+// GRUPOS / ESTADOS / CANALES
+// =============================
+
+if(
+sender.endsWith("@g.us") ||
+sender.endsWith("@broadcast") ||
+sender.endsWith("@newsletter")
+){
+console.log("Mensaje ignorado (grupo/estado/canal):",sender)
+return res.sendStatus(200)
+}
+
+// permitir SOLO chat privado
+if(!sender.endsWith("@s.whatsapp.net")){
+console.log("Mensaje ignorado (no es chat privado):",sender)
+return res.sendStatus(200)
+}
+
+// =============================
+
 const numero=sender.split("@")[0]
 
 console.log("Cliente:",numero)
 console.log("Mensaje:",message)
 
 // IA
-const respuesta=await preguntarIA(message)
+let respuesta=await preguntarIA(message)
+
+// limpiar respuesta
+respuesta = limpiarRespuesta(respuesta)
 
 console.log("Respuesta IA:",respuesta)
 

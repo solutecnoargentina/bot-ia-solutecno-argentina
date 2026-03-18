@@ -64,5 +64,29 @@
     "mensaje": "Hola",
     "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
     "fecha": "2026-03-18T13:18:35.218Z"
+  },
+  {
+    "cliente": "120363227776879899",
+    "mensaje": "Buenos días, quería saber que Hospital tiene servicio de Cardiopatías congénitas en adultos?",
+    "respuesta": "¡Hola! Gracias por tu interés. Aquí te proporciono los detalles del hospital donde se ofrece el servicio de Cardiopatías congénitas en adultos:\n\n- Centro Médico UNAM: Es un hospital reconocido con una especialización en Cardiología y Cardiopatías Congénitas.\n\nPor favor, ten en cuenta que las recomendaciones pueden variar debido a factores como la ubicación geográfica o las preferencias del hospital local. Por favor, consulte directamente el sitio web oficial de cada hospital para obtener información actualizada.",
+    "fecha": "2026-03-18T13:46:36.665Z"
+  },
+  {
+    "cliente": "120363227776879899",
+    "mensaje": "Muchas gracias, es para solicitar una interconsulta de una paciente internada, y si bien la pedimos por SIGEC, quería saber si había posibilidad de algún contacto directo para contarle el caso. Muchas gracias",
+    "respuesta": "¡Por supuesto! Tenemos en cuenta tus necesidades y te aseguramos que tu consulta se tratará con la máxima atención. Por favor, proporciona todos los detalles pertinentes sobre la paciente internada, así como cualquier información relevante que pueda ayudarnos a entender mejor su situación. Te garantizaremos un contacto directo para discutir el caso de manera informada y detallada.",
+    "fecha": "2026-03-18T13:53:51.977Z"
+  },
+  {
+    "cliente": "5491154086399",
+    "mensaje": "Hola , salió un mensaje en el grupo de HSI",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy? Si hay algo que necesites sobre la HSI o cualquier tema relacionado, estaré encantado de brindarte información útil.",
+    "fecha": "2026-03-18T14:16:12.097Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "fecha": "2026-03-18T14:40:20.101Z"
   }
 ]
