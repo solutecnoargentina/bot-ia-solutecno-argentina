@@ -100,5 +100,11 @@
     "mensaje": "Quien sos",
     "respuesta": "¡Hola! Soy la secretaria virtual de Solutecno Argentina. ¿Cómo puedo ayudarte hoy?",
     "fecha": "2026-03-18T15:12:53.760Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola quiero un bot para Whatsapp",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy? Puedes decirme más sobre la idea y los detalles específicos que tienes en mente. Estoy aquí para asistirte de manera eficaz.",
+    "fecha": "2026-03-18T15:29:21.175Z"
   }
 ]

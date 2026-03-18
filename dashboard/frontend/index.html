@@ -1,181 +1,591 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Solutecno AI Platform</title>
 
 <style>
+*{
+box-sizing:border-box;
+}
 
 body{
-font-family:Arial;
+font-family:Arial,Helvetica,sans-serif;
 margin:0;
-background:#f4f6fb;
-display:flex;
-height:100vh;
+background:linear-gradient(135deg,#eef2ff 0%,#f8fafc 45%,#e0f2fe 100%);
+color:#0f172a;
+min-height:100vh;
 }
 
 header{
-background:#0f172a;
-color:white;
-padding:15px;
-font-size:20px;
 position:fixed;
 top:0;
-width:100%;
+left:0;
+right:0;
+height:72px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 28px;
+background:rgba(15,23,42,0.92);
+backdrop-filter:blur(10px);
+color:white;
+z-index:1000;
+box-shadow:0 10px 30px rgba(15,23,42,0.18);
+}
+
+.brand{
+display:flex;
+flex-direction:column;
+gap:4px;
+}
+
+.brand-title{
+font-size:22px;
+font-weight:700;
+letter-spacing:0.3px;
+}
+
+.brand-subtitle{
+font-size:12px;
+color:rgba(255,255,255,0.72);
+}
+
+.header-badge{
+background:rgba(37,99,235,0.18);
+border:1px solid rgba(255,255,255,0.14);
+padding:10px 14px;
+border-radius:999px;
+font-size:12px;
+font-weight:700;
 }
 
 .main{
 display:flex;
-width:100%;
-margin-top:60px;
+gap:24px;
+padding:96px 24px 24px 24px;
+min-height:100vh;
 }
 
-/* panel clientes */
-
 .clients{
-width:25%;
-background:white;
-border-right:1px solid #ddd;
+width:320px;
+min-width:320px;
+background:rgba(255,255,255,0.82);
+backdrop-filter:blur(10px);
+border:1px solid rgba(255,255,255,0.6);
+border-radius:22px;
+box-shadow:0 18px 45px rgba(15,23,42,0.08);
+overflow:hidden;
+display:flex;
+flex-direction:column;
+height:calc(100vh - 120px);
+}
+
+.clients-header{
+padding:22px 22px 16px 22px;
+border-bottom:1px solid #e5e7eb;
+background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+}
+
+.clients-header h3{
+margin:0;
+font-size:20px;
+}
+
+.clients-header p{
+margin:6px 0 0 0;
+font-size:13px;
+color:#64748b;
+}
+
+#clientsList{
+padding:10px;
 overflow:auto;
+flex:1;
 }
 
 .client{
-padding:15px;
-border-bottom:1px solid #eee;
+padding:14px 16px;
+margin-bottom:10px;
+background:#ffffff;
+border:1px solid #e2e8f0;
+border-radius:14px;
 cursor:pointer;
+transition:all 0.2s ease;
+font-weight:600;
+color:#0f172a;
+box-shadow:0 6px 16px rgba(15,23,42,0.04);
+word-break:break-word;
 }
 
 .client:hover{
-background:#f5f5f5;
+transform:translateY(-1px);
+border-color:#93c5fd;
+background:#eff6ff;
 }
 
-/* chat */
+.client.active{
+background:linear-gradient(135deg,#dbeafe 0%,#eff6ff 100%);
+border-color:#60a5fa;
+}
 
 .chat{
 flex:1;
-padding:20px;
-overflow:auto;
+display:flex;
+flex-direction:column;
+gap:20px;
+min-width:0;
 }
 
-.message{
-margin-bottom:10px;
-}
-
-.bot{
-color:green;
-}
-
-.top{
-padding:20px;
+.grid-top{
+display:grid;
+grid-template-columns:1.1fr 1fr;
+gap:20px;
 }
 
 .card{
-background:white;
-padding:20px;
-margin-bottom:20px;
-border-radius:10px;
-box-shadow:0 4px 20px rgba(0,0,0,0.05);
+background:rgba(255,255,255,0.86);
+backdrop-filter:blur(10px);
+padding:22px;
+border-radius:22px;
+box-shadow:0 18px 45px rgba(15,23,42,0.08);
+border:1px solid rgba(255,255,255,0.65);
+}
+
+.card h2{
+margin:0 0 18px 0;
+font-size:22px;
+}
+
+.card h3{
+margin:0 0 14px 0;
+font-size:18px;
+}
+
+.status-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:14px;
+}
+
+.status-item{
+background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+border:1px solid #e2e8f0;
+border-radius:16px;
+padding:16px;
+}
+
+.status-label{
+font-size:13px;
+color:#64748b;
+margin-bottom:8px;
+}
+
+.status-value{
+font-size:16px;
+font-weight:700;
+display:flex;
+align-items:center;
+gap:8px;
+text-transform:capitalize;
+}
+
+.dot{
+width:10px;
+height:10px;
+border-radius:50%;
+display:inline-block;
+background:#94a3b8;
+}
+
+.dot.online{
+background:#22c55e;
+box-shadow:0 0 0 4px rgba(34,197,94,0.14);
+}
+
+.dot.offline{
+background:#ef4444;
+box-shadow:0 0 0 4px rgba(239,68,68,0.12);
+}
+
+.dot.unknown{
+background:#f59e0b;
+box-shadow:0 0 0 4px rgba(245,158,11,0.12);
+}
+
+.agents-list{
+display:flex;
+flex-direction:column;
+gap:14px;
+max-height:420px;
+overflow:auto;
+padding-right:4px;
+}
+
+.agent-card{
+background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+border:1px solid #e2e8f0;
+border-radius:18px;
+padding:18px;
+box-shadow:0 8px 22px rgba(15,23,42,0.04);
+}
+
+.agent-head{
+display:flex;
+align-items:flex-start;
+justify-content:space-between;
+gap:12px;
+margin-bottom:10px;
+}
+
+.agent-name{
+font-size:18px;
+font-weight:700;
+}
+
+.agent-prompt{
+font-size:14px;
+line-height:1.6;
+color:#475569;
+white-space:pre-wrap;
+word-break:break-word;
+background:#f8fafc;
+border:1px solid #e2e8f0;
+padding:14px;
+border-radius:14px;
+margin-top:10px;
+}
+
+.agent-actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:14px;
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr;
+gap:14px;
+}
+
+label{
+font-size:13px;
+font-weight:700;
+color:#334155;
+display:block;
+margin-bottom:8px;
 }
 
 input,textarea{
 width:100%;
-padding:10px;
-margin-top:10px;
-margin-bottom:10px;
-border:1px solid #ddd;
-border-radius:5px;
+padding:14px 14px;
+border:1px solid #dbe3ee;
+border-radius:14px;
+font-size:14px;
+background:#ffffff;
+outline:none;
+transition:border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,textarea:focus{
+border-color:#60a5fa;
+box-shadow:0 0 0 4px rgba(96,165,250,0.15);
+}
+
+textarea{
+min-height:160px;
+resize:vertical;
+line-height:1.5;
 }
 
 button{
-background:#2563eb;
+background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);
 color:white;
-padding:10px 15px;
+padding:11px 16px;
 border:none;
-border-radius:5px;
+border-radius:12px;
 cursor:pointer;
+font-size:14px;
+font-weight:700;
+transition:transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+box-shadow:0 10px 24px rgba(37,99,235,0.22);
 }
 
 button:hover{
-background:#1e4ed8;
+transform:translateY(-1px);
 }
 
-</style>
+button.secondary{
+background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+box-shadow:0 10px 24px rgba(15,23,42,0.16);
+}
 
+button.danger{
+background:linear-gradient(135deg,#dc2626 0%,#b91c1c 100%);
+box-shadow:0 10px 24px rgba(220,38,38,0.18);
+}
+
+.chat-card{
+padding:0;
+overflow:hidden;
+}
+
+.chat-header{
+padding:22px;
+border-bottom:1px solid #e5e7eb;
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+}
+
+.chat-header-left h2{
+margin:0;
+font-size:22px;
+}
+
+.chat-header-left p{
+margin:6px 0 0 0;
+font-size:13px;
+color:#64748b;
+}
+
+.chat-body{
+padding:22px;
+height:420px;
+overflow:auto;
+background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);
+}
+
+.empty-state{
+padding:28px;
+border:1px dashed #cbd5e1;
+border-radius:18px;
+background:rgba(255,255,255,0.75);
+text-align:center;
+color:#64748b;
+font-size:14px;
+}
+
+.message-group{
+margin-bottom:18px;
+}
+
+.message{
+padding:14px 16px;
+border-radius:16px;
+margin-bottom:8px;
+max-width:90%;
+line-height:1.5;
+box-shadow:0 8px 18px rgba(15,23,42,0.05);
+word-break:break-word;
+}
+
+.message.user{
+background:#ffffff;
+border:1px solid #dbeafe;
+margin-right:auto;
+}
+
+.message.bot{
+background:linear-gradient(135deg,#dbeafe 0%,#eff6ff 100%);
+border:1px solid #93c5fd;
+margin-left:auto;
+color:#0f172a;
+}
+
+.message-title{
+display:block;
+font-size:12px;
+font-weight:700;
+margin-bottom:6px;
+opacity:0.72;
+text-transform:uppercase;
+letter-spacing:0.4px;
+}
+
+.section-stack{
+display:grid;
+grid-template-columns:1fr;
+gap:20px;
+}
+
+.small-note{
+font-size:12px;
+color:#64748b;
+margin-top:8px;
+}
+
+::-webkit-scrollbar{
+width:10px;
+height:10px;
+}
+
+::-webkit-scrollbar-thumb{
+background:#cbd5e1;
+border-radius:999px;
+}
+
+::-webkit-scrollbar-track{
+background:transparent;
+}
+
+@media (max-width:1100px){
+.main{
+flex-direction:column;
+}
+.clients{
+width:100%;
+min-width:100%;
+height:auto;
+max-height:320px;
+}
+.grid-top{
+grid-template-columns:1fr;
+}
+.chat-body{
+height:360px;
+}
+}
+
+@media (max-width:640px){
+header{
+padding:0 16px;
+height:auto;
+min-height:72px;
+flex-direction:column;
+align-items:flex-start;
+justify-content:center;
+gap:8px;
+padding-top:12px;
+padding-bottom:12px;
+}
+.main{
+padding:110px 14px 14px 14px;
+}
+.card{
+padding:18px;
+border-radius:18px;
+}
+.status-grid{
+grid-template-columns:1fr;
+}
+.agent-actions{
+flex-direction:column;
+}
+button{
+width:100%;
+}
+}
+</style>
 </head>
 
 <body>
 
 <header>
-
-Solutecno AI Platform
-
+<div class="brand">
+<div class="brand-title">Solutecno AI Platform</div>
+<div class="brand-subtitle">Dashboard comercial, agentes IA y conversaciones</div>
+</div>
+<div class="header-badge">Panel profesional</div>
 </header>
-
 
 <div class="main">
 
 <div class="clients">
-
-<div class="top">
-
+<div class="clients-header">
 <h3>Clientes</h3>
-
+<p>Conversaciones detectadas en WhatsApp</p>
+</div>
 <div id="clientsList"></div>
-
 </div>
-
-</div>
-
 
 <div class="chat">
 
+<div class="grid-top">
 <div class="card">
-
 <h2>Estado del sistema</h2>
-
-Bot IA: <span id="bot"></span><br>
-Ollama: <span id="ollama"></span><br>
-Evolution: <span id="evolution"></span>
-
+<div class="status-grid">
+<div class="status-item">
+<div class="status-label">Bot IA</div>
+<div class="status-value"><span id="dot-bot" class="dot unknown"></span><span id="bot"></span></div>
+</div>
+<div class="status-item">
+<div class="status-label">Ollama</div>
+<div class="status-value"><span id="dot-ollama" class="dot unknown"></span><span id="ollama"></span></div>
+</div>
+<div class="status-item">
+<div class="status-label">Evolution</div>
+<div class="status-value"><span id="dot-evolution" class="dot unknown"></span><span id="evolution"></span></div>
+</div>
+</div>
+<div class="small-note">El panel verifica el estado automáticamente cada pocos segundos.</div>
 </div>
 
 <div class="card">
-
-<h2>Agentes IA</h2>
-
-<div id="agents"></div>
-
-</div>
-
-<div class="card">
-
 <h2>Crear agente</h2>
+<div class="form-grid">
+<div>
+<label>Nombre del agente</label>
+<input id="name" placeholder="Ejemplo: Secretaria Solutecno">
+</div>
 
-<input id="name" placeholder="Nombre agente">
+<div>
+<label>Prompt IA</label>
+<textarea id="prompt" placeholder="Describe el rol, tono, reglas y objetivo del agente"></textarea>
+</div>
 
-<textarea id="prompt" placeholder="Prompt IA"></textarea>
-
+<div>
 <button onclick="crearAgente()">Guardar agente</button>
-
+</div>
+</div>
+</div>
 </div>
 
+<div class="section-stack">
 <div class="card">
+<h2>Agentes IA</h2>
+<div id="agents" class="agents-list"></div>
+</div>
 
+<div class="card chat-card">
+<div class="chat-header">
+<div class="chat-header-left">
 <h2>Chat</h2>
-
-<div id="chatMessages"></div>
-
+<p id="chatClientLabel">Selecciona un cliente para ver la conversación</p>
+</div>
+</div>
+<div id="chatMessages" class="chat-body">
+<div class="empty-state">
+Todavía no seleccionaste ningún cliente.  
+Cuando elijas uno desde la columna izquierda, aquí aparecerá el historial.
+</div>
+</div>
+</div>
 </div>
 
 </div>
-
 </div>
 
 <script>
-
 let conversations=[]
 let currentClient=null
+
+function setStatusDot(elementId,value){
+const dot=document.getElementById(elementId)
+dot.className="dot"
+
+if(value==="online"){
+dot.classList.add("online")
+}else if(value==="offline"){
+dot.classList.add("offline")
+}else{
+dot.classList.add("unknown")
+}
+}
 
 async function status(){
 
@@ -186,6 +596,9 @@ document.getElementById("bot").innerText=data.bot
 document.getElementById("ollama").innerText=data.ollama
 document.getElementById("evolution").innerText=data.evolution
 
+setStatusDot("dot-bot",data.bot)
+setStatusDot("dot-ollama",data.ollama)
+setStatusDot("dot-evolution",data.evolution)
 }
 
 async function cargarAgentes(){
@@ -195,37 +608,38 @@ const data=await res.json()
 
 let html=""
 
+if(!data.length){
+html=`<div class="empty-state">Todavía no hay agentes creados.</div>`
+}
+
 data.forEach((a,i)=>{
 
 html+=`
-
-<div>
-
-<b>${a.name}</b><br>
-
-${a.prompt}
-
-<br><br>
-
-<button onclick="editarAgente(${i})">Editar</button>
-<button onclick="eliminarAgente(${i})">Eliminar</button>
-
+<div class="agent-card">
+<div class="agent-head">
+<div class="agent-name">${a.name || "Sin nombre"}</div>
 </div>
 
-<hr>
+<div class="agent-prompt">${a.prompt || "Sin prompt"}</div>
 
+<div class="agent-actions">
+<button class="secondary" onclick="editarAgente(${i})">Editar</button>
+<button class="danger" onclick="eliminarAgente(${i})">Eliminar</button>
+</div>
+</div>
 `
-
 })
 
 document.getElementById("agents").innerHTML=html
-
 }
 
 async function editarAgente(id){
 
 const name=prompt("Nuevo nombre agente")
+if(name===null) return
+
 const promptIA=prompt("Nuevo prompt")
+if(promptIA===null) return
 
 await fetch("/agents/"+id,{
 method:"PUT",
@@ -234,7 +648,6 @@ body:JSON.stringify({name:name,prompt:promptIA})
 })
 
 cargarAgentes()
-
 }
 
 async function eliminarAgente(id){
@@ -246,7 +659,6 @@ method:"DELETE"
 })
 
 cargarAgentes()
-
 }
 
 async function crearAgente(){
@@ -264,35 +676,36 @@ document.getElementById("name").value=""
 document.getElementById("prompt").value=""
 
 cargarAgentes()
-
 }
 
 async function loadConversations(){
 
 const res=await fetch("/conversations")
-
 conversations=await res.json()
 
 const clients={}
-
 conversations.forEach(c=>{
 clients[c.cliente]=true
 })
 
 const list=document.getElementById("clientsList")
-
 list.innerHTML=""
 
-Object.keys(clients).forEach(c=>{
+const keys=Object.keys(clients)
+
+if(!keys.length){
+list.innerHTML=`<div class="empty-state" style="margin:10px;">Todavía no hay conversaciones guardadas.</div>`
+return
+}
+
+keys.forEach(c=>{
 
 list.innerHTML+=`
-<div class="client" onclick="openChat('${c}')">
+<div class="client ${currentClient===c ? "active" : ""}" onclick="openChat('${c}')">
 ${c}
 </div>
 `
-
 })
-
 }
 
 function openChat(cliente){
@@ -300,27 +713,37 @@ function openChat(cliente){
 currentClient=cliente
 
 const chat=document.getElementById("chatMessages")
+const label=document.getElementById("chatClientLabel")
+
+label.innerText="Conversación con " + cliente
 
 chat.innerHTML=""
 
-conversations
-.filter(c=>c.cliente===cliente)
-.forEach(c=>{
+const filtered=conversations.filter(c=>c.cliente===cliente)
+
+if(!filtered.length){
+chat.innerHTML=`<div class="empty-state">No hay mensajes para este cliente.</div>`
+return
+}
+
+filtered.forEach(c=>{
 
 chat.innerHTML+=`
-
-<div class="message">
-<b>Cliente:</b> ${c.mensaje}
+<div class="message-group">
+<div class="message user">
+<span class="message-title">Cliente</span>
+${c.mensaje}
 </div>
 
 <div class="message bot">
-<b>Bot:</b> ${c.respuesta}
+<span class="message-title">Bot</span>
+${c.respuesta}
 </div>
-
+</div>
 `
-
 })
 
+loadConversations()
 }
 
 setInterval(status,3000)
@@ -329,7 +752,6 @@ setInterval(loadConversations,3000)
 status()
 cargarAgentes()
 loadConversations()
-
 </script>
 
 </body>
