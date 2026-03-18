@@ -3,13 +3,6 @@ const axios = require("axios")
 const fs = require("fs")
 
 // =============================
-// ARCHIVOS
-// =============================
-
-const conversationsFile="/opt/bot-ia-solutecno-argentina/dashboard/backend/conversations.json"
-const agentsFile="/opt/bot-ia-solutecno-argentina/dashboard/backend/agents.json"
-
-// =============================
 // CONFIG BOT
 // =============================
 
@@ -26,6 +19,19 @@ const API_KEY = "A18324CBD9B9-4246-8C80-1BC0909067E2"
 
 const app = express()
 app.use(express.json())
+
+// =============================
+// ARCHIVOS
+// =============================
+
+const agentsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/agents.json"
+const conversationsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/conversations.json"
+
+// =============================
+// MEMORIA ANTILOOP
+// =============================
+
+const processedMessages = new Set()
 
 // =============================
 // GUARDAR CONVERSACIONES
@@ -160,7 +166,10 @@ app.post("/webhook",async(req,res)=>{
 
 try{
 
-// detectar mensaje correctamente
+// ID UNICO DEL MENSAJE
+const messageId = req.body.data?.key?.id || null
+
+// detectar mensaje
 const message =
 req.body.data?.message?.conversation ||
 req.body.data?.message?.extendedTextMessage?.text ||
@@ -168,9 +177,38 @@ null
 
 const sender=req.body.data?.key?.remoteJid || null
 
+// detectar si el mensaje es del propio bot
+const fromMe = req.body.data?.key?.fromMe || false
+
+// =============================
+// FILTROS ANTILOOP
+// =============================
+
+// ignorar mensajes del propio bot
+if(fromMe){
+return res.sendStatus(200)
+}
+
+// ignorar si no hay datos
 if(!message || !sender){
 return res.sendStatus(200)
 }
+
+// ignorar mensajes duplicados
+if(messageId && processedMessages.has(messageId)){
+console.log("Mensaje duplicado ignorado:",messageId)
+return res.sendStatus(200)
+}
+
+// guardar mensaje procesado
+if(messageId){
+processedMessages.add(messageId)
+}
+
+// limpiar memoria cada 5 minutos
+setTimeout(()=>{
+processedMessages.delete(messageId)
+},300000)
 
 const numero=sender.split("@")[0]
 

@@ -58,5 +58,11 @@
     "mensaje": "Hola",
     "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
     "fecha": "2026-03-16T04:35:00.649Z"
+  },
+  {
+    "cliente": "5491171293418",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "fecha": "2026-03-18T13:18:35.218Z"
   }
 ]
