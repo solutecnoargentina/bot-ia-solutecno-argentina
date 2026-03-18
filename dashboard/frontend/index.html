@@ -19,6 +19,10 @@ color:#0f172a;
 min-height:100vh;
 }
 
+.hidden{
+display:none !important;
+}
+
 header{
 position:fixed;
 top:0;
@@ -51,6 +55,12 @@ letter-spacing:0.3px;
 .brand-subtitle{
 font-size:12px;
 color:rgba(255,255,255,0.72);
+}
+
+.header-actions{
+display:flex;
+align-items:center;
+gap:12px;
 }
 
 .header-badge{
@@ -159,11 +169,6 @@ margin:0 0 18px 0;
 font-size:22px;
 }
 
-.card h3{
-margin:0 0 14px 0;
-font-size:18px;
-}
-
 .status-grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
@@ -230,14 +235,6 @@ border:1px solid #e2e8f0;
 border-radius:18px;
 padding:18px;
 box-shadow:0 8px 22px rgba(15,23,42,0.04);
-}
-
-.agent-head{
-display:flex;
-align-items:flex-start;
-justify-content:space-between;
-gap:12px;
-margin-bottom:10px;
 }
 
 .agent-name{
@@ -310,7 +307,7 @@ border-radius:12px;
 cursor:pointer;
 font-size:14px;
 font-weight:700;
-transition:transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+transition:transform 0.15s ease, box-shadow 0.15s ease;
 box-shadow:0 10px 24px rgba(37,99,235,0.22);
 }
 
@@ -326,6 +323,11 @@ box-shadow:0 10px 24px rgba(15,23,42,0.16);
 button.danger{
 background:linear-gradient(135deg,#dc2626 0%,#b91c1c 100%);
 box-shadow:0 10px 24px rgba(220,38,38,0.18);
+}
+
+button.logout{
+background:linear-gradient(135deg,#334155 0%,#0f172a 100%);
+box-shadow:0 10px 24px rgba(15,23,42,0.16);
 }
 
 .chat-card{
@@ -419,6 +421,43 @@ color:#64748b;
 margin-top:8px;
 }
 
+.login-screen{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:24px;
+}
+
+.login-card{
+width:100%;
+max-width:430px;
+background:rgba(255,255,255,0.9);
+backdrop-filter:blur(10px);
+padding:30px;
+border-radius:24px;
+box-shadow:0 20px 50px rgba(15,23,42,0.12);
+border:1px solid rgba(255,255,255,0.75);
+}
+
+.login-card h1{
+margin:0 0 8px 0;
+font-size:28px;
+}
+
+.login-card p{
+margin:0 0 22px 0;
+color:#64748b;
+line-height:1.5;
+}
+
+.login-error{
+margin-top:12px;
+color:#dc2626;
+font-size:14px;
+font-weight:700;
+}
+
 ::-webkit-scrollbar{
 width:10px;
 height:10px;
@@ -485,12 +524,42 @@ width:100%;
 
 <body>
 
+<div id="loginScreen" class="login-screen">
+<div class="login-card">
+<h1>Ingreso administrador</h1>
+<p>Accede al panel completo de Solutecno AI Platform con tus credenciales de administrador.</p>
+
+<div class="form-grid">
+<div>
+<label>Usuario</label>
+<input id="loginUser" placeholder="Usuario admin">
+</div>
+
+<div>
+<label>Contraseña</label>
+<input id="loginPass" type="password" placeholder="Contraseña">
+</div>
+
+<div>
+<button onclick="login()">Ingresar</button>
+</div>
+</div>
+
+<div id="loginError" class="login-error"></div>
+</div>
+</div>
+
+<div id="dashboardApp" class="hidden">
+
 <header>
 <div class="brand">
 <div class="brand-title">Solutecno AI Platform</div>
 <div class="brand-subtitle">Dashboard comercial, agentes IA y conversaciones</div>
 </div>
-<div class="header-badge">Panel profesional</div>
+<div class="header-actions">
+<div class="header-badge">Admin</div>
+<button class="logout" onclick="logout()">Cerrar sesión</button>
+</div>
 </header>
 
 <div class="main">
@@ -560,7 +629,7 @@ width:100%;
 </div>
 <div id="chatMessages" class="chat-body">
 <div class="empty-state">
-Todavía no seleccionaste ningún cliente.  
+Todavía no seleccionaste ningún cliente.
 Cuando elijas uno desde la columna izquierda, aquí aparecerá el historial.
 </div>
 </div>
@@ -570,9 +639,95 @@ Cuando elijas uno desde la columna izquierda, aquí aparecerá el historial.
 </div>
 </div>
 
+</div>
+
 <script>
 let conversations=[]
 let currentClient=null
+let adminToken=localStorage.getItem("adminToken") || null
+let statusInterval=null
+let conversationsInterval=null
+
+function authHeaders(){
+return {
+"Content-Type":"application/json",
+"x-admin-token":adminToken || ""
+}
+}
+
+async function apiFetch(url,options={}){
+
+const config={...options}
+config.headers={
+...(options.headers || {}),
+"x-admin-token":adminToken || ""
+}
+
+const res=await fetch(url,config)
+
+if(res.status===401){
+cerrarSesionLocal()
+return null
+}
+
+return res
+}
+
+function mostrarDashboard(){
+document.getElementById("loginScreen").classList.add("hidden")
+document.getElementById("dashboardApp").classList.remove("hidden")
+}
+
+function mostrarLogin(){
+document.getElementById("dashboardApp").classList.add("hidden")
+document.getElementById("loginScreen").classList.remove("hidden")
+}
+
+function cerrarSesionLocal(){
+localStorage.removeItem("adminToken")
+adminToken=null
+mostrarLogin()
+document.getElementById("loginError").innerText="Sesión finalizada o acceso no autorizado."
+if(statusInterval) clearInterval(statusInterval)
+if(conversationsInterval) clearInterval(conversationsInterval)
+}
+
+async function login(){
+
+const user=document.getElementById("loginUser").value
+const pass=document.getElementById("loginPass").value
+
+const res=await fetch("/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({user,pass})
+})
+
+const data=await res.json()
+
+if(!res.ok){
+document.getElementById("loginError").innerText=data.message || "No se pudo iniciar sesión."
+return
+}
+
+adminToken=data.token
+localStorage.setItem("adminToken",adminToken)
+document.getElementById("loginError").innerText=""
+document.getElementById("loginPass").value=""
+
+mostrarDashboard()
+iniciarDashboard()
+}
+
+async function logout(){
+
+const res=await apiFetch("/logout",{
+method:"POST",
+headers:authHeaders()
+})
+
+cerrarSesionLocal()
+}
 
 function setStatusDot(elementId,value){
 const dot=document.getElementById(elementId)
@@ -589,7 +744,9 @@ dot.classList.add("unknown")
 
 async function status(){
 
-const res=await fetch("/status")
+const res=await apiFetch("/status")
+if(!res) return
+
 const data=await res.json()
 
 document.getElementById("bot").innerText=data.bot
@@ -603,7 +760,9 @@ setStatusDot("dot-evolution",data.evolution)
 
 async function cargarAgentes(){
 
-const res=await fetch("/agents")
+const res=await apiFetch("/agents")
+if(!res) return
+
 const data=await res.json()
 
 let html=""
@@ -616,12 +775,8 @@ data.forEach((a,i)=>{
 
 html+=`
 <div class="agent-card">
-<div class="agent-head">
 <div class="agent-name">${a.name || "Sin nombre"}</div>
-</div>
-
 <div class="agent-prompt">${a.prompt || "Sin prompt"}</div>
-
 <div class="agent-actions">
 <button class="secondary" onclick="editarAgente(${i})">Editar</button>
 <button class="danger" onclick="eliminarAgente(${i})">Eliminar</button>
@@ -641,9 +796,9 @@ if(name===null) return
 const promptIA=prompt("Nuevo prompt")
 if(promptIA===null) return
 
-await fetch("/agents/"+id,{
+await apiFetch("/agents/"+id,{
 method:"PUT",
-headers:{"Content-Type":"application/json"},
+headers:authHeaders(),
 body:JSON.stringify({name:name,prompt:promptIA})
 })
 
@@ -654,8 +809,9 @@ async function eliminarAgente(id){
 
 if(!confirm("Eliminar agente?")) return
 
-await fetch("/agents/"+id,{
-method:"DELETE"
+await apiFetch("/agents/"+id,{
+method:"DELETE",
+headers:authHeaders()
 })
 
 cargarAgentes()
@@ -666,9 +822,9 @@ async function crearAgente(){
 const name=document.getElementById("name").value
 const prompt=document.getElementById("prompt").value
 
-await fetch("/agents",{
+await apiFetch("/agents",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:authHeaders(),
 body:JSON.stringify({name,prompt})
 })
 
@@ -680,7 +836,9 @@ cargarAgentes()
 
 async function loadConversations(){
 
-const res=await fetch("/conversations")
+const res=await apiFetch("/conversations")
+if(!res) return
+
 conversations=await res.json()
 
 const clients={}
@@ -699,7 +857,6 @@ return
 }
 
 keys.forEach(c=>{
-
 list.innerHTML+=`
 <div class="client ${currentClient===c ? "active" : ""}" onclick="openChat('${c}')">
 ${c}
@@ -716,18 +873,17 @@ const chat=document.getElementById("chatMessages")
 const label=document.getElementById("chatClientLabel")
 
 label.innerText="Conversación con " + cliente
-
 chat.innerHTML=""
 
 const filtered=conversations.filter(c=>c.cliente===cliente)
 
 if(!filtered.length){
 chat.innerHTML=`<div class="empty-state">No hay mensajes para este cliente.</div>`
+loadConversations()
 return
 }
 
 filtered.forEach(c=>{
-
 chat.innerHTML+=`
 <div class="message-group">
 <div class="message user">
@@ -746,12 +902,24 @@ ${c.respuesta}
 loadConversations()
 }
 
-setInterval(status,3000)
-setInterval(loadConversations,3000)
-
+function iniciarDashboard(){
 status()
 cargarAgentes()
 loadConversations()
+
+if(statusInterval) clearInterval(statusInterval)
+if(conversationsInterval) clearInterval(conversationsInterval)
+
+statusInterval=setInterval(status,3000)
+conversationsInterval=setInterval(loadConversations,3000)
+}
+
+if(adminToken){
+mostrarDashboard()
+iniciarDashboard()
+}else{
+mostrarLogin()
+}
 </script>
 
 </body>
