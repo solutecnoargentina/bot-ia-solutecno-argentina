@@ -88,5 +88,17 @@
     "mensaje": "Hola",
     "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
     "fecha": "2026-03-18T14:40:20.101Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "fecha": "2026-03-18T15:12:37.394Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Quien sos",
+    "respuesta": "¡Hola! Soy la secretaria virtual de Solutecno Argentina. ¿Cómo puedo ayudarte hoy?",
+    "fecha": "2026-03-18T15:12:53.760Z"
   }
 ]

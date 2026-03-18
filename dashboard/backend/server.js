@@ -54,6 +54,53 @@ res.json({status:"guardado"})
 
 })
 
+// ======================
+// EDITAR AGENTE
+// ======================
+
+app.put("/agents/:id",(req,res)=>{
+
+const id=parseInt(req.params.id)
+
+const agents = JSON.parse(fs.readFileSync(AGENTS_FILE))
+
+if(!agents[id]){
+return res.json({error:"agente no existe"})
+}
+
+agents[id]={
+name:req.body.name,
+prompt:req.body.prompt
+}
+
+fs.writeFileSync(AGENTS_FILE,JSON.stringify(agents,null,2))
+
+res.json({status:"editado"})
+
+})
+
+// ======================
+// ELIMINAR AGENTE
+// ======================
+
+app.delete("/agents/:id",(req,res)=>{
+
+const id=parseInt(req.params.id)
+
+let agents = JSON.parse(fs.readFileSync(AGENTS_FILE))
+
+if(!agents[id]){
+return res.json({error:"agente no existe"})
+}
+
+agents.splice(id,1)
+
+fs.writeFileSync(AGENTS_FILE,JSON.stringify(agents,null,2))
+
+res.json({status:"eliminado"})
+
+})
+
 
 // ======================
 // ESTADO SISTEMA

@@ -195,13 +195,57 @@ const data=await res.json()
 
 let html=""
 
-data.forEach(a=>{
+data.forEach((a,i)=>{
 
-html+=`<div><b>${a.name}</b><br>${a.prompt}</div><hr>`
+html+=`
+
+<div>
+
+<b>${a.name}</b><br>
+
+${a.prompt}
+
+<br><br>
+
+<button onclick="editarAgente(${i})">Editar</button>
+<button onclick="eliminarAgente(${i})">Eliminar</button>
+
+</div>
+
+<hr>
+
+`
 
 })
 
 document.getElementById("agents").innerHTML=html
+
+}
+
+async function editarAgente(id){
+
+const name=prompt("Nuevo nombre agente")
+const promptIA=prompt("Nuevo prompt")
+
+await fetch("/agents/"+id,{
+method:"PUT",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({name:name,prompt:promptIA})
+})
+
+cargarAgentes()
+
+}
+
+async function eliminarAgente(id){
+
+if(!confirm("Eliminar agente?")) return
+
+await fetch("/agents/"+id,{
+method:"DELETE"
+})
+
+cargarAgentes()
 
 }
 
