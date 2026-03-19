@@ -803,13 +803,13 @@ body:JSON.stringify({name:name,prompt:promptIA})
 })
 
 cargarAgentes()
-await apiFetch("/agents/"+parseInt(id),{}
+}
 
 async function eliminarAgente(id){
 
 if(!confirm("Eliminar agente?")) return
 
-
+await apiFetch("/agents/"+parseInt(id),{
 method:"DELETE",
 headers:authHeaders()
 })

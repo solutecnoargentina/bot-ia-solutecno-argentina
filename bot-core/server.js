@@ -105,6 +105,12 @@ prompt:"Eres un asistente útil y respondes en español."
 
 }
 
+const activeAgent = agents.find(agent => agent.active === true)
+
+if(activeAgent){
+return activeAgent
+}
+
 return agents[0]
 
 }
@@ -212,15 +218,21 @@ if(!message || !sender){
 return res.sendStatus(200)
 }
 
-// ignorar mensajes duplicados
-if(messageId && processedMessages.has(messageId)){
+// control fuerte anti duplicados
+if(messageId){
+
+if(processedMessages.has(messageId)){
 console.log("Mensaje duplicado ignorado:",messageId)
 return res.sendStatus(200)
 }
 
-// guardar mensaje procesado
-if(messageId){
 processedMessages.add(messageId)
+
+// limpiar memoria después
+setTimeout(()=>{
+processedMessages.delete(messageId)
+},300000)
+
 }
 
 // limpiar memoria cada 5 minutos

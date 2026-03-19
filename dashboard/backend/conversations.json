@@ -106,5 +106,41 @@
     "mensaje": "Hola quiero un bot para Whatsapp",
     "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy? Puedes decirme más sobre la idea y los detalles específicos que tienes en mente. Estoy aquí para asistirte de manera eficaz.",
     "fecha": "2026-03-18T15:29:21.175Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte con el clima en Argentina hoy?",
+    "fecha": "2026-03-19T12:11:15.896Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! Como asistente secreto de solución de tecnología, estoy aquí para ayudarte con cualquier problema o duda que tengas. ¿Cómo puedo brindarte información sobre el clima en Argentina?",
+    "fecha": "2026-03-19T12:11:19.059Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "fecha": "2026-03-19T12:11:19.966Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "fecha": "2026-03-19T12:19:52.837Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "fecha": "2026-03-19T12:20:04.922Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy? Estoy aquí para ofrecerte mis servicios de ventas más eficientes. ¿En qué puedo asistirte hoy?",
+    "fecha": "2026-03-19T12:20:59.728Z"
   }
 ]
