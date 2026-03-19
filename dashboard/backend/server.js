@@ -226,6 +226,7 @@ app.listen(4000,"0.0.0.0",()=>{
 console.log("Dashboard backend activo puerto 4000")
 
 })
+/*
 // ======================
 // LOGIN
 // ======================
@@ -258,12 +259,12 @@ res.status(401).json({error:"Credenciales incorrectas"})
 
 function auth(req,res,next){
 
-const token = req.headers["authorization"]
+const token = req.headers["x-admin-token"]
 
-if(!token || !sessions[token]){
+if(!token || !activeTokens.has(token)){
 return res.status(401).json({error:"No autorizado"})
 }
 
 next()
-
+*/
 }

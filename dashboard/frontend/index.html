@@ -796,20 +796,20 @@ if(name===null) return
 const promptIA=prompt("Nuevo prompt")
 if(promptIA===null) return
 
-await apiFetch("/agents/"+id,{
+await apiFetch("/agents/"+parseInt(id),{
 method:"PUT",
 headers:authHeaders(),
 body:JSON.stringify({name:name,prompt:promptIA})
 })
 
 cargarAgentes()
-}
+await apiFetch("/agents/"+parseInt(id),{}
 
 async function eliminarAgente(id){
 
 if(!confirm("Eliminar agente?")) return
 
-await apiFetch("/agents/"+id,{
+
 method:"DELETE",
 headers:authHeaders()
 })
