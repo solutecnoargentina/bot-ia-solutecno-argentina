@@ -220,7 +220,27 @@ res.json(JSON.parse(fs.readFileSync(conversationsFile)))
 // ======================
 // INICIAR SERVIDOR
 // ======================
+app.get("/stats",(req,res)=>{
 
+try{
+
+const statsFile = path.join(__dirname,"stats.json")
+
+if(!fs.existsSync(statsFile)){
+return res.json([])
+}
+
+const data = JSON.parse(fs.readFileSync(statsFile))
+
+res.json(data)
+
+}catch(e){
+
+res.json([])
+
+}
+
+})
 app.listen(4000,"0.0.0.0",()=>{
 
 console.log("Dashboard backend activo puerto 4000")

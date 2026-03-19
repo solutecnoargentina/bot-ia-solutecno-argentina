@@ -26,7 +26,7 @@ app.use(express.json())
 
 const agentsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/agents.json"
 const conversationsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/conversations.json"
-
+const statsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/stats.json"
 // =============================
 // MEMORIA ANTILOOP
 // =============================
@@ -285,7 +285,26 @@ console.log("Respuesta IA:",respuesta)
 
 // guardar conversación
 saveConversation(numero,message,respuesta)
+try{
 
+let stats = []
+
+if(fs.existsSync(statsFile)){
+stats = JSON.parse(fs.readFileSync(statsFile))
+}
+
+stats.push({
+cliente: numero,
+mensaje: message,
+respuesta: respuesta,
+fecha: new Date()
+})
+
+fs.writeFileSync(statsFile, JSON.stringify(stats,null,2))
+
+}catch(e){
+console.log("Error guardando stats:",e.message)
+}
 // enviar respuesta a whatsapp
 await enviarWhatsapp(numero,respuesta)
 
