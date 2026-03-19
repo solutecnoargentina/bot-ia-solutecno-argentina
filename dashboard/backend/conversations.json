@@ -142,5 +142,11 @@
     "mensaje": "Hola",
     "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy? Estoy aquí para ofrecerte mis servicios de ventas más eficientes. ¿En qué puedo asistirte hoy?",
     "fecha": "2026-03-19T12:20:59.728Z"
+  },
+  {
+    "cliente": "5491153775879",
+    "mensaje": "Hola",
+    "respuesta": "¡Hola! ¿Cómo puedo ayudarte hoy? Estamos allí para asegurar que tu experiencia con nosotros sea la más positiva posible. ¡Adelante, háganos saber cómo podemos asistirte!",
+    "fecha": "2026-03-19T12:33:26.619Z"
   }
 ]
