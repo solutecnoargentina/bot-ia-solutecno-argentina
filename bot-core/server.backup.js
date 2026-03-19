@@ -32,7 +32,7 @@ const conversationsFile = "/opt/bot-ia-solutecno-argentina/dashboard/backend/con
 // =============================
 
 const processedMessages = new Set()
-const lastMessagePerUser = {}
+
 // =============================
 // LIMPIAR RESPUESTA IA
 // =============================
@@ -263,15 +263,7 @@ return res.sendStatus(200)
 // =============================
 
 const numero=sender.split("@")[0]
-// anti loop por tiempo (5 segundos)
-const now = Date.now()
 
-if(lastMessagePerUser[numero] && (now - lastMessagePerUser[numero]) < 5000){
-console.log("Mensaje ignorado por loop:",numero)
-return res.sendStatus(200)
-}
-
-lastMessagePerUser[numero] = now
 console.log("Cliente:",numero)
 console.log("Mensaje:",message)
 
