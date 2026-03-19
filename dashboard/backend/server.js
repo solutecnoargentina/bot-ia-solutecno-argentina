@@ -226,3 +226,44 @@ app.listen(4000,"0.0.0.0",()=>{
 console.log("Dashboard backend activo puerto 4000")
 
 })
+// ======================
+// LOGIN
+// ======================
+
+
+let sessions = {}
+
+app.post("/login",(req,res)=>{
+
+const {user,pass} = req.body
+
+if(user === ADMIN_USER && pass === ADMIN_PASS){
+
+const token = crypto.randomBytes(16).toString("hex")
+
+sessions[token] = true
+
+return res.json({token})
+
+}
+
+res.status(401).json({error:"Credenciales incorrectas"})
+
+})
+
+
+// ======================
+// MIDDLEWARE AUTH
+// ======================
+
+function auth(req,res,next){
+
+const token = req.headers["authorization"]
+
+if(!token || !sessions[token]){
+return res.status(401).json({error:"No autorizado"})
+}
+
+next()
+
+}
