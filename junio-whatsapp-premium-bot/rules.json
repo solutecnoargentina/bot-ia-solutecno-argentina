@@ -1,0 +1,17 @@
+[
+  {
+    "name": "saludo",
+    "triggers": ["hola", "buenas", "buen dia", "buenos dias", "buenas tardes", "buenas noches"],
+    "reply": "Hola, soy el asistente automatico de Solutecno Argentina. En que te puedo ayudar hoy?"
+  },
+  {
+    "name": "horarios",
+    "triggers": ["horario", "horarios", "atencion", "atienden", "abren"],
+    "reply": "Nuestro equipo te responde por WhatsApp en horario comercial. Si me dejas tu consulta, la dejamos registrada."
+  },
+  {
+    "name": "soporte",
+    "triggers": ["soporte", "ayuda", "problema", "error", "fallo"],
+    "reply": "Puedo ayudarte con soporte comercial o tecnico. Decime el detalle y si queres, tambien podes pegar una captura."
+  }
+]
